@@ -1,0 +1,22 @@
+.BoardSquares {
+	height: 50px;
+	width: 50px;
+	padding: 5px;
+}
+
+.circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 1px solid #000;
+      cursor: pointer;
+}
+
+.black {
+	background-color: #000;
+}
+
+.red {
+	background-color: #cc4b37;
+}
+

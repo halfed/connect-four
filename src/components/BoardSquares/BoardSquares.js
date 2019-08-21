@@ -1,5 +1,5 @@
 import React from 'react';
-import classes from './BoardSquares.css';
+import classes from './BoardSquares.scss';
 
 const BoardSquares = (props) => {
 	let color = '';
@@ -13,10 +13,10 @@ const BoardSquares = (props) => {
 	}
 	return (
 		<div className={classes.BoardSquares}>
-			<div className={classes.circle + ' ' + color} 
-				onClick={() => props.playerClick(props.id, props.innerArr, props.outerArr)}>{props.value}</div>
+			<div className={classes.circle + ' ' + color + ' column'} 
+				onClick={() => props.playerClick(props.id, props.innerArr, props.outerArr)}></div>
 		</div>
 	);
 }
 
-export default BoardSquares;
+export default BoardSquares; 

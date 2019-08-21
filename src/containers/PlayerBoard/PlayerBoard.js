@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import StartScreen from '../../components/StartScreen/StartScreen';
 import OutCome from '../../components/OutCome/OutCome';
 import BoardSquares from '../../components/BoardSquares/BoardSquares';
-import classes from './PlayerBoard.css';
+import classes from './PlayerBoard.scss';
 
 class PlayerBoard extends Component {
 	state = {
@@ -15,15 +15,6 @@ class PlayerBoard extends Component {
 			player: '',
 			color: ''
 		},
-		// board: [
-		// 	[0,0,0,0,0,1],
-		// 	[0,0,0,0,0,2],
-		// 	[0,0,0,0,0,3],
-		// 	[0,0,0,0,0,4],
-		// 	[0,0,0,0,0,5],
-		// 	[0,0,0,0,0,6],
-		// 	[0,0,0,0,0,7],
-		// ]
 		board: [
 			[{id: 1, value: 0, color: ''},{id: 2, value: 0, color: ''},{id: 3, value: 0, color: ''},{id: 4, value: 0, color: ''},{id: 5, value: 0, color: ''},{id: 6, value: 0, color: ''}],
 			[{id: 7, value: 0, color: ''},{id: 8, value: 0, color: ''},{id: 9, value: 0, color: ''},{id: 10, value: 0, color: ''},{id: 11, value: 0, color: ''},{id: 12, value: 0, color: ''}],
@@ -32,7 +23,8 @@ class PlayerBoard extends Component {
 			[{id: 25, value: 0, color: ''},{id: 26, value: 0, color: ''},{id: 27, value: 0, color: ''},{id: 28, value: 0, color: ''},{id: 29, value: 0, color: ''},{id: 30, value: 0, color: ''}],
 			[{id: 31, value: 0, color: ''},{id: 32, value: 0, color: ''},{id: 33, value: 0, color: ''},{id: 34, value: 0, color: ''},{id: 35, value: 0, color: ''},{id: 36, value: 0, color: ''}],
 			[{id: 37, value: 0, color: ''},{id: 38, value: 0, color: ''},{id: 39, value: 0, color: ''},{id: 40, value: 0, color: ''},{id: 41, value: 0, color: ''},{id: 42, value: 0, color: ''}]
-		]
+		],
+		rowCountDown: 5
 	}
 
 	handleStartClick = (val) => {
@@ -59,11 +51,36 @@ class PlayerBoard extends Component {
 	}
 
 	handlePlayerClicked = (id, inner, outer) => {
+		if(this.state.gameOver) return;
+
+		console.log("inner and outer " + inner + " " + outer);
+		console.log("id is " + id);
+		let checkRow = 0;
+		for(let a = 0; a < this.state.board[outer].length; a++) {
+			if(this.state.board[outer][this.state.rowCountDown].value === 0) {
+				checkRow++;
+			}else {
+				this.setState({
+					rowCountDown: this.state.rowCountDown--
+				});
+			}
+			console.log("checkRow " + checkRow);
+		}
+
+		if(checkRow > 0) {
+			let setInner = this.state.rowCountDown - inner;
+			let setId = this.state.rowCountDown - inner;
+			id += setId;
+			inner += setInner;
+		}
+
+
 		const curSquare = {
 			id: id,
 			value: this.state.currentPlayer.player,
 			color: this.state.currentPlayer.color
 		}
+
 		const newBoard = this.state.board;
 		newBoard[outer].splice(inner, 1, curSquare);
  		this.setState({
@@ -75,16 +92,10 @@ class PlayerBoard extends Component {
  		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player);
  		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player);
 
- 		console.log("vertical win " + verticalWin);
- 		console.log("horizontal win " + horizontalWin);
- 		console.log("forward slash win " + forwardSlashWin);
- 		console.log("backward slash win " + backwardSlashWin);
- 		if(verticalWin || horizontalWin || forwardSlashWin) {
+ 		if(verticalWin || horizontalWin || forwardSlashWin || backwardSlashWin) {
  			this.setState({
  				gameOver: true,
  			});
- 			alert();
-
  		} else {
  			if(this.state.currentPlayer.player === 1) {
 				this.setState({
@@ -102,11 +113,9 @@ class PlayerBoard extends Component {
 				});
 			}
  		}
-		
 	}
 
 	checkVertical = (board, player) => {
-		
 		for(let i = 0; i<board.length; i++) {
 			let counter = 0;
 			let fourStraight = 0;
@@ -116,13 +125,11 @@ class PlayerBoard extends Component {
 			let innerBoard = board[i];
 			for(let j = 0; j<innerBoard.length; j++) {
 				if(innerBoard[j].value === player) {
-					//console.log("counter in loop " + counter);
 					counter++;
 					fourStraight++;
 					if(counter === 4 && fourStraight === 4) {
 						return true;
 					}
-					//console.log("counter in loop after check " + counter);
 				}else {
 					if(fourStraight > 0) {
 						fourStraight--;	
@@ -140,22 +147,16 @@ class PlayerBoard extends Component {
 			let innerBoard = board[i];
 			for(let j = 0; j<innerBoard.length; j++) {
 				if(innerBoard[j].value === player) {
-					//console.log("innerBoard value, row, column " + innerBoard[j].value + " " + j + " " + i);
-
 					counter++;
 					fourStraight++;
-					
-
 					let newInnerBoard = board[i+1];
 					for(let k = i+1; k<board.length; k++) {
-						console.log("board value column and row " + " " + k + " " + j + " " + board[k][j].value);
 						if(counter === 4) {
 							return;
 						}
 						if(board[k][j].value === player) {
 							counter++;
 							fourStraight++;
-							console.log("found another one " + fourStraight);
 							if(counter === 4 && fourStraight === 4) {
 								return true;
 							}
@@ -164,7 +165,6 @@ class PlayerBoard extends Component {
 								fourStraight--;	
 							}
 						}
-						//console.log("counter in loop after check " + counter);
 					}
 				}
 			}
@@ -178,27 +178,14 @@ class PlayerBoard extends Component {
 			let fourStraight = 0;
 			let innerBoard = board[i];
 			for(let j = 0; j<innerBoard.length; j++) {
-				//console.log("is this running");
 				if(innerBoard[j].value === player) {
-					console.log("innerBoard value, row, column " + innerBoard[j].value + " " + j + " " + i);
-
 					counter++;
 					fourStraight++;
-					// let decreaser;
-					// if(j-1 >= 0) {
-					// 	decreaser = j-1;
-					// }
-
 					let decreaser = j-1;
-					
 					for(let k = i+1; k<board.length; k++) {
-						
-						console.log("board value column and row(decreaser) " + board[k][decreaser].value + " " + k + " " + decreaser);
 						if(board[k][decreaser].value === player) {
 							counter++;
 							fourStraight++;
-							//console.log("found another one " + board[k][k].value);
-							console.log('fourStraight' + fourStraight);
 							if(counter === 4 && fourStraight === 4) {
 								return true;
 							}
@@ -223,26 +210,15 @@ class PlayerBoard extends Component {
 			let fourStraight = 0;
 			let innerBoard = board[i];
 			for(let j = 0; j<innerBoard.length; j++) {
-				//console.log("is this running");
 				if(innerBoard[j].value === player) {
-					console.log("innerBoard value, row, column " + innerBoard[j].value + " " + j + " " + i);
-
 					counter++;
 					fourStraight++;
-					// let decreaser;
-					// if(j-1 >= 0) {
-					// 	decreaser = j-1;
-					// }
-
 					let decreaser = j-1;
 					
 					for(let k = i-1; k>=0; k--) {
-						console.log("board value column and row(decreaser) and column length " + board[k][decreaser].value + " " + k + " " + decreaser + " " + board.length);
 						if(board[k][decreaser].value === player) {
 							counter++;
 							fourStraight++;
-							//console.log("found another one " + board[k][k].value);
-							console.log('fourStraight' + fourStraight);
 							if(counter === 4 && fourStraight === 4) {
 								return true;
 							}
@@ -273,7 +249,8 @@ class PlayerBoard extends Component {
 					[{id: 25, value: 0, color: ''},{id: 26, value: 0, color: ''},{id: 27, value: 0, color: ''},{id: 28, value: 0, color: ''},{id: 29, value: 0, color: ''},{id: 30, value: 0, color: ''}],
 					[{id: 31, value: 0, color: ''},{id: 32, value: 0, color: ''},{id: 33, value: 0, color: ''},{id: 34, value: 0, color: ''},{id: 35, value: 0, color: ''},{id: 36, value: 0, color: ''}],
 					[{id: 37, value: 0, color: ''},{id: 38, value: 0, color: ''},{id: 39, value: 0, color: ''},{id: 40, value: 0, color: ''},{id: 41, value: 0, color: ''},{id: 42, value: 0, color: ''}]
-				]
+				],
+			rowCountDown: 5
 		});
 	}
 
@@ -285,7 +262,7 @@ class PlayerBoard extends Component {
 							clicked={this.handleStartClick} />
 		} else {
 			gameBoard = (
-				<div>
+				<div className={classes.boardContainer + ' columns is-mobile'}>
 					{this.state.board.map((boards, boardsIndex) => {
 						return <div className={classes.test} key={boardsIndex}>{
 									boards.map((squares, index) => {
@@ -306,7 +283,7 @@ class PlayerBoard extends Component {
 
 		if(this.state.gameOver) {
 			outCome = <OutCome
-						winnerType={this.state.winner}
+						winnerType={this.state.currentPlayer.color}
 						reStart={this.handleClickRestart} />
 		}
 		return (

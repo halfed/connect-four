@@ -7,7 +7,6 @@ class App extends Component {
     return (
       <div>
         <Layout>
-          <p>test</p>
             <PlayerBoard/>
         </Layout>
       </div>

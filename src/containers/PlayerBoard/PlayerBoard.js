@@ -24,7 +24,8 @@ class PlayerBoard extends Component {
 			[{id: 31, value: 0, color: ''},{id: 32, value: 0, color: ''},{id: 33, value: 0, color: ''},{id: 34, value: 0, color: ''},{id: 35, value: 0, color: ''},{id: 36, value: 0, color: ''}],
 			[{id: 37, value: 0, color: ''},{id: 38, value: 0, color: ''},{id: 39, value: 0, color: ''},{id: 40, value: 0, color: ''},{id: 41, value: 0, color: ''},{id: 42, value: 0, color: ''}]
 		],
-		rowCountDown: 5
+		rowCountDown: 5,
+		timesClicked: 0
 	}
 
 	handleStartClick = (val) => {
@@ -51,25 +52,38 @@ class PlayerBoard extends Component {
 	}
 
 	handlePlayerClicked = (id, inner, outer) => {
+		let rowCountDown = 5;
 		if(this.state.gameOver) return;
+		this.setTotalClicks();
 
-		console.log("inner and outer " + inner + " " + outer);
-		console.log("id is " + id);
+		//console.log("inner and outer " + inner + " " + outer);
+		//console.log("id is " + id);
 		let checkRow = 0;
+		let test1 = this.state.board[outer].length;
+		let test2 = this.state.board[outer][rowCountDown].value;
+		let test3 = rowCountDown;
+
+		//console.log("test1 is " + test1);
+		//console.log("test2 is " + test2);
+		//console.log("test3 is " + test3);
+
 		for(let a = 0; a < this.state.board[outer].length; a++) {
-			if(this.state.board[outer][this.state.rowCountDown].value === 0) {
+			if(this.state.board[outer][rowCountDown].value === 0) {
 				checkRow++;
 			}else {
-				this.setState({
-					rowCountDown: this.state.rowCountDown--
-				});
+				// this.setState({
+				// 	rowCountDown: rowCountDown--
+				// });
+				rowCountDown--
 			}
-			console.log("checkRow " + checkRow);
+			let test4 = rowCountDown;
+			//console.log("test4 " + test4);
+			//console.log("checkRow " + checkRow);
 		}
 
 		if(checkRow > 0) {
-			let setInner = this.state.rowCountDown - inner;
-			let setId = this.state.rowCountDown - inner;
+			let setInner = rowCountDown - inner;
+			let setId = rowCountDown - inner;
 			id += setId;
 			inner += setInner;
 		}
@@ -96,7 +110,7 @@ class PlayerBoard extends Component {
  			this.setState({
  				gameOver: true,
  			});
- 		} else {
+ 		}else {
  			if(this.state.currentPlayer.player === 1) {
 				this.setState({
 					currentPlayer: {
@@ -113,6 +127,13 @@ class PlayerBoard extends Component {
 				});
 			}
  		}
+	}
+
+	setTotalClicks =() => {
+
+		this.setState({
+			timesClicked: this.state.timesClicked + 1
+		});
 	}
 
 	checkVertical = (board, player) => {
@@ -182,7 +203,12 @@ class PlayerBoard extends Component {
 					counter++;
 					fourStraight++;
 					let decreaser = j-1;
+					// if(j > 0) {
+					// 	decreaser = j--;
+					// }
 					for(let k = i+1; k<board.length; k++) {
+						console.log("k is " + k);
+						console.log("decreaser is " + decreaser);
 						if(board[k][decreaser].value === player) {
 							counter++;
 							fourStraight++;
@@ -297,3 +323,15 @@ class PlayerBoard extends Component {
 }
 
 export default PlayerBoard;
+
+/*
+or(let k = i-1; k>=0; k--) {
+> 240 | 	if(board[k][decreaser].value === player) {
+
+
+
+
+
+	207 | 	if(board[k][decreaser].value === player) {
+  208 | 		counter++;
+*/

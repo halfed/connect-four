@@ -1,13 +1,13 @@
 .BoardSquares {
-	height: 50px;
-	width: 50px;
-	padding: 5px;
-	margin:5px;
+	height: 40px;
+  width: 40px;
+  padding: 5px 2px 5px 3px;
+  margin: 4px;
 }
 
 .circle {
-      width: 50px;
-      height: 50px;
+      width: 35px;
+      height: 35px;
       border-radius: 50%;
       border: 1px solid #000;
       cursor: pointer;
@@ -22,12 +22,16 @@
 	background-color: #cc4b37;
 }
 
-//5px 3px 5px 8px
+@media only screen and (min-width: 768px) {
+  .BoardSquares {
+    height: 50px;
+    width: 50px;
+    padding: 5px;
+    margin:5px;
+  }
 
-
-    // width: 42px;
-    // height: 42px;
-    // border-radius: 50%;
-    // border: 1px solid #000;
-    // cursor: pointer;
-    // background-color: #FFF;
+  .circle {
+      width: 50px;
+      height: 50px;
+  }
+}

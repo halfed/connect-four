@@ -54,40 +54,23 @@ class PlayerBoard extends Component {
 	handlePlayerClicked = (id, inner, outer) => {
 		let rowCountDown = 5;
 		if(this.state.gameOver) return;
-		this.setTotalClicks();
 
-		//console.log("inner and outer " + inner + " " + outer);
-		//console.log("id is " + id);
 		let checkRow = 0;
-		let test1 = this.state.board[outer].length;
-		let test2 = this.state.board[outer][rowCountDown].value;
-		let test3 = rowCountDown;
-
-		//console.log("test1 is " + test1);
-		//console.log("test2 is " + test2);
-		//console.log("test3 is " + test3);
 
 		for(let a = 0; a < this.state.board[outer].length; a++) {
 			if(this.state.board[outer][rowCountDown].value === 0) {
 				checkRow++;
 			}else {
-				// this.setState({
-				// 	rowCountDown: rowCountDown--
-				// });
-				rowCountDown--
+				rowCountDown--;
 			}
-			let test4 = rowCountDown;
-			//console.log("test4 " + test4);
-			//console.log("checkRow " + checkRow);
 		}
 
 		if(checkRow > 0) {
-			let setInner = rowCountDown - inner;
-			let setId = rowCountDown - inner;
-			id += setId;
-			inner += setInner;
+		let setInner = rowCountDown - inner;
+		let setId = rowCountDown - inner;
+		id += setId;
+		inner += setInner;
 		}
-
 
 		const curSquare = {
 			id: id,
@@ -101,172 +84,221 @@ class PlayerBoard extends Component {
  			board: newBoard
  		});
 
- 		const verticalWin = this.checkVertical(newBoard, this.state.currentPlayer.player);
- 		const horizontalWin = this.checkHorizontal(newBoard, this.state.currentPlayer.player);
- 		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player);
- 		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player);
+		let allPicked = this.state.board.map(function(squares) {
+		  return squares.map(function(prop){return prop.value > 0})
+		}).flat().every(
+		  function(value, _, array){
+		    return array[0] === value;
+		  }
+		);
 
+ 		const verticalWin = this.checkVertical(newBoard, this.state.currentPlayer.player, inner, outer);
+ 		const horizontalWin = this.checkHorizontal(newBoard, this.state.currentPlayer.player, inner, outer);
+ 		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
+ 		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
+	 		
  		if(verticalWin || horizontalWin || forwardSlashWin || backwardSlashWin) {
  			this.setState({
  				gameOver: true,
  			});
  		}else {
- 			if(this.state.currentPlayer.player === 1) {
-				this.setState({
-					currentPlayer: {
-						player: 2,
-						color: this.state.playerTwo
-					}
-				});
-			}else {
-				this.setState({
-					currentPlayer: {
-						player: 1,
-						color: this.state.playerOne
-					}
-				});
-			}
+ 			if(allPicked) {
+ 				this.setState({
+	 				currentPlayer: {
+						player: this.state.currentPlayer.player,
+						color: 'Tie'
+					},
+					gameOver: true,
+ 				});
+ 			}else {
+ 				if(this.state.currentPlayer.player === 1) {
+					this.setState({
+						currentPlayer: {
+							player: 2,
+							color: this.state.playerTwo
+						}
+					});
+				}else {
+					this.setState({
+						currentPlayer: {
+							player: 1,
+							color: this.state.playerOne
+						}
+					});
+				}
+ 			}
+ 			
  		}
 	}
 
-	setTotalClicks =() => {
+	checkVertical = (board, player, innerRow, outerCol) => {
+		let fourStraight = 0, length = 0, start = 0, constant = 3, newRow = innerRow + 1, bottom = 0;
 
-		this.setState({
-			timesClicked: this.state.timesClicked + 1
-		});
-	}
+		if(innerRow < 3) {
+			length = newRow + constant;
+		}else if(innerRow === 3) {
+			bottom = board[outerCol].length - newRow;
+			length = newRow + bottom;
+		}else {
+			start = innerRow - constant;
+			length = 6;
+		}
 
-	checkVertical = (board, player) => {
-		for(let i = 0; i<board.length; i++) {
-			let counter = 0;
-			let fourStraight = 0;
-			if(counter === 4) {
-				return;
-			}
-			let innerBoard = board[i];
-			for(let j = 0; j<innerBoard.length; j++) {
-				if(innerBoard[j].value === player) {
-					counter++;
-					fourStraight++;
-					if(counter === 4 && fourStraight === 4) {
-						return true;
-					}
-				}else {
-					if(fourStraight > 0) {
-						fourStraight--;	
-					}
-				}
+		for(var i = start; i < length; i++) {
+			if(board[outerCol][i].value === player) {
+				fourStraight++;
 			}
 		}
-		return false;
+
+		if(fourStraight === 4) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
-	checkHorizontal = (board, player) => {
-		for(let i = 0; i<board.length; i++) {
-			let counter = 0;
-			let fourStraight = 0;
-			let innerBoard = board[i];
-			for(let j = 0; j<innerBoard.length; j++) {
-				if(innerBoard[j].value === player) {
-					counter++;
-					fourStraight++;
-					let newInnerBoard = board[i+1];
-					for(let k = i+1; k<board.length; k++) {
-						if(counter === 4) {
-							return;
-						}
-						if(board[k][j].value === player) {
-							counter++;
-							fourStraight++;
-							if(counter === 4 && fourStraight === 4) {
-								return true;
-							}
-						}else {
-							if(fourStraight > 0) {
-								fourStraight--;	
-							}
-						}
-					}
-				}
+	checkHorizontal = (board, player, innerRow, outerCol) => {
+		let fourStraight = 0, newCol = outerCol + 1, right = 0, left = 0, length = 0, start = 0;
+
+		if(newCol < 5) {
+			right = 3;
+			length = newCol + right;
+		}else {
+			left = 3;
+			start = outerCol - left;
+			length = 7;
+		}
+		for(var i = start; i < length; i++) {
+			if(board[i][innerRow].value === player) {
+				fourStraight++;
 			}
 		}
-		return false;
+		if(fourStraight === 4) {
+			return true;
+		}else {
+			return false;
+		}	
 	}
 
-	checkforwardSlash = (board, player) => {
-		for(let i = 0; i<board.length; i++) {
-			let counter = 0;
-			let fourStraight = 0;
-			let innerBoard = board[i];
-			for(let j = 0; j<innerBoard.length; j++) {
-				if(innerBoard[j].value === player) {
-					counter++;
-					fourStraight++;
-					let decreaser = j-1;
-					// if(j > 0) {
-					// 	decreaser = j--;
-					// }
-					for(let k = i+1; k<board.length; k++) {
-						console.log("k is " + k);
-						console.log("decreaser is " + decreaser);
-						if(board[k][decreaser].value === player) {
-							counter++;
-							fourStraight++;
-							if(counter === 4 && fourStraight === 4) {
-								return true;
-							}
-						}else {
-							if(fourStraight > 0) {
-								fourStraight--;	
-							}
-						}
-						if(decreaser > 0) {
-							decreaser--;	
-						}
-					}
-				}
+	checkforwardSlash = (board, player, innerRow, outerCol) => {
+		let fourStraight = 0, reducer = 1, length = 0, testOuterCol = 0, maxToRightCol = 6,
+		maxToRightRow = 0, minToLeftRow = 5, minToLeftCol = 0, minLeftCount = 0, maxtoRightCount = 0,
+		modifiedInnerRow = innerRow, modifiedOuterCol = outerCol, minleftInnerRowToUse = 0, testInnerRow = 0;
+		
+		//CHECK MIN TO LEFT LENGTH FOR START
+		for(let i = 0; i < outerCol + 1; i++) {
+			if(modifiedOuterCol === minToLeftCol || modifiedInnerRow === minToLeftRow) {
+				testOuterCol = modifiedOuterCol;
+				testInnerRow = modifiedInnerRow;
+				break;
+			}else {
+				minLeftCount++;
+				modifiedOuterCol--;
+				modifiedInnerRow++;
 			}
 		}
-		return false;
+
+		//RESET THE MODIFIERS
+		modifiedInnerRow = innerRow, modifiedOuterCol = outerCol;
+		//CHECK MAX TO RIGHT LENGTH
+		for(var j = 0; j < 4; j++) {
+			if(modifiedOuterCol === maxToRightCol || modifiedInnerRow === maxToRightRow) {
+				if(maxtoRightCount === 0) {
+					maxtoRightCount++;
+				}
+				break;
+			}else {
+				maxtoRightCount++;
+				modifiedOuterCol++;
+				modifiedInnerRow--;
+			}
+		}
+
+		length = maxtoRightCount + minLeftCount;
+
+		for(let k = 0; k < length; k++) {
+			if(board[testOuterCol][testInnerRow].value === player) {
+				fourStraight++;
+			}else {
+				if(fourStraight > 0) {
+					fourStraight - reducer;
+				}
+			}
+			testInnerRow--;
+			testOuterCol++;
+		}
+
+		if(fourStraight === 4) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 
-	checkBackwardSlash = (board, player) => {
-		for(let i = 0; i<board.length; i++) {
-			let counter = 0;
-			let fourStraight = 0;
-			let innerBoard = board[i];
-			for(let j = 0; j<innerBoard.length; j++) {
-				if(innerBoard[j].value === player) {
-					counter++;
-					fourStraight++;
-					let decreaser = j-1;
-					
-					for(let k = i-1; k>=0; k--) {
-						if(board[k][decreaser].value === player) {
-							counter++;
-							fourStraight++;
-							if(counter === 4 && fourStraight === 4) {
-								return true;
-							}
-						}else {
-							if(fourStraight > 0) {
-								fourStraight--;	
-							}
-						}
-						if(decreaser > 0) {
-							decreaser--;	
-						}
-					}
+	checkBackwardSlash = (board, player, innerRow, outerCol) => {
+		let fourStraight = 0, reducer = 1, length = 0, testOuterCol = 0, maxToRightCol = 6, 
+		maxToRightRow = 5, minToLeftRow = 0, minToLeftCol = 0, minLeftCount = 0, 
+		maxtoRightCount = 0, modifiedInnerRow = innerRow, modifiedOuterCol = outerCol, 
+		minleftInnerRowToUse = 0, testInnerRow = 0;
+
+		//CHECK MIN TO LEFT LENGTH FOR START
+		for(let i = 0; i < outerCol + 1; i++) {
+			if(modifiedOuterCol === minToLeftCol || modifiedInnerRow === minToLeftRow) {
+				testOuterCol = modifiedOuterCol;
+				testInnerRow = modifiedInnerRow;
+				if(minToLeftRow === 0) {
+					minLeftCount++;
 				}
+				break;
+			}else {
+				minLeftCount++;
+				modifiedOuterCol--;
+				modifiedInnerRow--;
 			}
 		}
-		return false;
+
+		//RESET THE MODIFIERS
+		modifiedInnerRow = innerRow, modifiedOuterCol = outerCol;
+		// //CHECK MAX TO RIGHT LENGTH
+		for(var j = 0; j < 4; j++) {
+			if(modifiedOuterCol === maxToRightCol || modifiedInnerRow === maxToRightRow) {
+				break;
+			}else {
+				maxtoRightCount++;
+				modifiedOuterCol++;
+				modifiedInnerRow++;
+			}
+		}
+
+		length = maxtoRightCount + minLeftCount;
+
+		for(let k = 0; k < length; k++) {
+			if(board[testOuterCol][testInnerRow].value === player) {
+
+				fourStraight++;
+			}else {
+				if(fourStraight > 0) {
+					fourStraight - reducer;
+				}
+			}
+			testInnerRow++;
+			testOuterCol++;
+		}
+
+		if(fourStraight === 4) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 	handleClickRestart = () => {
 		this.setState({
 			startGame: !this.state.startGame,
 			gameOver: !this.state.gameOver,
+			playerOne: '',
+			playerTwo: '',
 			board: [
 					[{id: 1, value: 0, color: ''},{id: 2, value: 0, color: ''},{id: 3, value: 0, color: ''},{id: 4, value: 0, color: ''},{id: 5, value: 0, color: ''},{id: 6, value: 0, color: ''}],
 					[{id: 7, value: 0, color: ''},{id: 8, value: 0, color: ''},{id: 9, value: 0, color: ''},{id: 10, value: 0, color: ''},{id: 11, value: 0, color: ''},{id: 12, value: 0, color: ''}],

@@ -55,6 +55,8 @@ class PlayerBoard extends Component {
 		let rowCountDown = 5;
 		if(this.state.gameOver) return;
 
+
+
 		let checkRow = 0;
 
 		for(let a = 0; a < this.state.board[outer].length; a++) {
@@ -66,69 +68,70 @@ class PlayerBoard extends Component {
 		}
 
 		if(checkRow > 0) {
-		let setInner = rowCountDown - inner;
-		let setId = rowCountDown - inner;
-		id += setId;
-		inner += setInner;
-		}
+			let setInner = rowCountDown - inner;
+			let setId = rowCountDown - inner;
+			id += setId;
+			inner += setInner;
+		
+			const curSquare = {
+				id: id,
+				value: this.state.currentPlayer.player,
+				color: this.state.currentPlayer.color
+			}
 
-		const curSquare = {
-			id: id,
-			value: this.state.currentPlayer.player,
-			color: this.state.currentPlayer.color
-		}
+			const newBoard = this.state.board;
+			newBoard[outer].splice(inner, 1, curSquare);
+	 		this.setState({
+	 			board: newBoard
+	 		});
 
-		const newBoard = this.state.board;
-		newBoard[outer].splice(inner, 1, curSquare);
- 		this.setState({
- 			board: newBoard
- 		});
+			let allPicked = this.state.board.map(function(squares) {
+			  return squares.map(function(prop){return prop.value > 0})
+			}).flat().every(
+			  function(value, _, array){
+			    return array[0] === value;
+			  }
+			);
 
-		let allPicked = this.state.board.map(function(squares) {
-		  return squares.map(function(prop){return prop.value > 0})
-		}).flat().every(
-		  function(value, _, array){
-		    return array[0] === value;
-		  }
-		);
+	 		const verticalWin = this.checkVertical(newBoard, this.state.currentPlayer.player, inner, outer);
+	 		const horizontalWin = this.checkHorizontal(newBoard, this.state.currentPlayer.player, inner, outer);
+	 		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
+	 		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
 
- 		const verticalWin = this.checkVertical(newBoard, this.state.currentPlayer.player, inner, outer);
- 		const horizontalWin = this.checkHorizontal(newBoard, this.state.currentPlayer.player, inner, outer);
- 		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
- 		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
-
- 		if(verticalWin || horizontalWin || forwardSlashWin || backwardSlashWin) {
- 			this.setState({
- 				gameOver: true,
- 			});
+	 		if(verticalWin || horizontalWin || forwardSlashWin || backwardSlashWin) {
+	 			this.setState({
+	 				gameOver: true,
+	 			});
+	 		}else {
+	 			if(allPicked) {
+	 				this.setState({
+		 				currentPlayer: {
+							player: this.state.currentPlayer.player,
+							color: 'Tie'
+						},
+						gameOver: true,
+	 				});
+	 			}else {
+	 				if(this.state.currentPlayer.player === 1) {
+						this.setState({
+							currentPlayer: {
+								player: 2,
+								color: this.state.playerTwo
+							}
+						});
+					}else {
+						this.setState({
+							currentPlayer: {
+								player: 1,
+								color: this.state.playerOne
+							}
+						});
+					}
+	 			}
+	 		}
  		}else {
- 			if(allPicked) {
- 				this.setState({
-	 				currentPlayer: {
-						player: this.state.currentPlayer.player,
-						color: 'Tie'
-					},
-					gameOver: true,
- 				});
- 			}else {
- 				if(this.state.currentPlayer.player === 1) {
-					this.setState({
-						currentPlayer: {
-							player: 2,
-							color: this.state.playerTwo
-						}
-					});
-				}else {
-					this.setState({
-						currentPlayer: {
-							player: 1,
-							color: this.state.playerOne
-						}
-					});
-				}
- 			}
- 			
- 		}
+			return;
+		}
 	}
 
 	checkVertical = (board, player, playersRow, playersCol) => {

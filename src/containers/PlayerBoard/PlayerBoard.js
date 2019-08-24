@@ -96,7 +96,7 @@ class PlayerBoard extends Component {
  		const horizontalWin = this.checkHorizontal(newBoard, this.state.currentPlayer.player, inner, outer);
  		const forwardSlashWin = this.checkforwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
  		const backwardSlashWin = this.checkBackwardSlash(newBoard, this.state.currentPlayer.player, inner, outer);
-	 		
+
  		if(verticalWin || horizontalWin || forwardSlashWin || backwardSlashWin) {
  			this.setState({
  				gameOver: true,
@@ -131,49 +131,120 @@ class PlayerBoard extends Component {
  		}
 	}
 
-	checkVertical = (board, player, innerRow, outerCol) => {
-		let fourStraight = 0, length = 0, start = 0, constant = 3, newRow = innerRow + 1, bottom = 0;
+	checkVertical = (board, player, playersRow, playersCol) => {
+		let fourStraight = 0, maxUpperRow = 0, maxLowerRow = 5, startRow = 0,
+		lowerCount = 0, upperCount = 0, length = 0, maxConstant = 3,
+		modifiedPlayersRow = playersRow;
 
-		if(innerRow < 3) {
-			length = newRow + constant;
-		}else if(innerRow === 3) {
-			bottom = board[outerCol].length - newRow;
-			length = newRow + bottom;
-		}else {
-			start = innerRow - constant;
-			length = 6;
+		//CHECK FOR A UPPER WIN
+		for(var i = 0; i < maxConstant; i++) {
+			if(modifiedPlayersRow === maxUpperRow || upperCount === maxConstant) {
+				if(upperCount === 0) {
+				upperCount++;
+				}
+				break;
+			}else {
+				modifiedPlayersRow--;
+				upperCount++;
+			}
+			startRow = modifiedPlayersRow;
 		}
 
-		for(var i = start; i < length; i++) {
-			if(board[outerCol][i].value === player) {
-				fourStraight++;
+		//CHECK FOR A LOWER WIN
+		//RESET MOFIFIED VALUE BACK TO PLAYERS SELECTED COLUMN
+		modifiedPlayersRow = playersRow;
+		for(var j = 0; j < maxConstant; j++) {
+			if(modifiedPlayersRow === maxLowerRow || lowerCount === maxConstant) {
+				if(lowerCount === 0) {
+					lowerCount++
+					
+				}
+				break;
+			}else {
+				lowerCount++;
+				modifiedPlayersRow++
 			}
+		}
+
+		length = upperCount + lowerCount;
+		if(playersRow < maxUpperRow ) {
+			length++;
+		}else if(playersRow !== maxLowerRow) {
+			length++;
+		}
+
+		for(var k = 0; k < length; k++) {
+			if(board[playersCol][startRow].value === player) {
+				fourStraight++;
+				if(fourStraight === 4) {
+					break;
+				}
+			}else {
+				fourStraight = 0;
+
+			}
+			startRow++;
 		}
 
 		if(fourStraight === 4) {
 			return true;
-		}
-		else {
+		}else {
 			return false;
 		}
 	}
 
-	checkHorizontal = (board, player, innerRow, outerCol) => {
-		let fourStraight = 0, newCol = outerCol + 1, right = 0, left = 0, length = 0, start = 0;
+	checkHorizontal = (board, player, playersRow, playersCol) => {
+		let fourStraight = 0, maxLeftCol = 0, maxRightCol = 6, startCol = 0,
+		rightCount = 0, leftCount = 0, length = 0, maxConstant = 3,
+		modifiedPlayersCol = playersCol;
 
-		if(newCol < 5) {
-			right = 3;
-			length = newCol + right;
-		}else {
-			left = 3;
-			start = outerCol - left;
-			length = 7;
-		}
-		for(var i = start; i < length; i++) {
-			if(board[i][innerRow].value === player) {
-				fourStraight++;
+		//CHECK FOR A WIN TO THE LEFT
+		for(var i = 0; i < maxConstant; i++) {
+			if(modifiedPlayersCol === maxLeftCol || leftCount === maxConstant) {
+				leftCount++;
+				startCol = modifiedPlayersCol;
+				break;
+			}else {
+				modifiedPlayersCol--;
+				leftCount++;
 			}
 		}
+
+		//CHECK FOR A WIN TO THE RIGHT
+		//RESET MOFIFIED VALUE BACK TO PLAYERS SELECTED COLUMN
+		modifiedPlayersCol = playersCol;
+		for(var j = 0; j < maxConstant; j++) {
+			if(modifiedPlayersCol === maxRightCol || rightCount === maxConstant) {
+				
+				if(rightCount !== 0) {
+					rightCount++;
+				}
+				break;
+			}else {
+				rightCount++;
+				modifiedPlayersCol++
+			}
+		}
+
+		length = leftCount + rightCount;
+		if(playersCol > maxLeftCol) {
+			length++;
+		}else if(playersCol < maxRightCol) {
+			length++;
+		}
+
+		for(var k = 0; k < length; k++) {
+			if(board[startCol][playersRow].value === player) {
+				fourStraight++;
+				if(fourStraight === 4) {
+					break;
+				}
+			}else {
+				fourStraight = 0;
+			}
+			startCol++;
+		}
+
 		if(fourStraight === 4) {
 			return true;
 		}else {
@@ -220,10 +291,12 @@ class PlayerBoard extends Component {
 		for(let k = 0; k < length; k++) {
 			if(board[testOuterCol][testInnerRow].value === player) {
 				fourStraight++;
-			}else {
-				if(fourStraight > 0) {
-					fourStraight - reducer;
+				if(fourStraight === 4) {
+					break;
 				}
+			}else {
+				//RESET COUNTER
+				fourStraight = 0;
 			}
 			testInnerRow--;
 			testOuterCol++;
@@ -277,10 +350,11 @@ class PlayerBoard extends Component {
 			if(board[testOuterCol][testInnerRow].value === player) {
 
 				fourStraight++;
-			}else {
-				if(fourStraight > 0) {
-					fourStraight - reducer;
+				if(fourStraight === 4) {
+					break;
 				}
+			}else {
+				fourStraight = 0;
 			}
 			testInnerRow++;
 			testOuterCol++;
@@ -355,15 +429,3 @@ class PlayerBoard extends Component {
 }
 
 export default PlayerBoard;
-
-/*
-or(let k = i-1; k>=0; k--) {
-> 240 | 	if(board[k][decreaser].value === player) {
-
-
-
-
-
-	207 | 	if(board[k][decreaser].value === player) {
-  208 | 		counter++;
-*/

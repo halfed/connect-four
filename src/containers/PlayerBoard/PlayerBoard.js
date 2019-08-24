@@ -196,7 +196,7 @@ class PlayerBoard extends Component {
 	checkHorizontal = (board, player, playersRow, playersCol) => {
 		let fourStraight = 0, maxLeftCol = 0, maxRightCol = 6, startCol = 0,
 		rightCount = 0, leftCount = 0, length = 0, maxConstant = 3,
-		modifiedPlayersCol = playersCol, extendPlayersCol = playersCol;
+		modifiedPlayersCol = playersCol;
 
 		//CHECK FOR A WIN TO THE LEFT
 		for(var i = 0; i < maxConstant; i++) {

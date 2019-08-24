@@ -167,7 +167,7 @@ class PlayerBoard extends Component {
 		}
 
 		length = upperCount + lowerCount;
-		if(playersRow < maxUpperRow ) {
+		if(playersRow < maxUpperRow) {
 			length++;
 		}else if(playersRow !== maxLowerRow) {
 			length++;
@@ -196,18 +196,18 @@ class PlayerBoard extends Component {
 	checkHorizontal = (board, player, playersRow, playersCol) => {
 		let fourStraight = 0, maxLeftCol = 0, maxRightCol = 6, startCol = 0,
 		rightCount = 0, leftCount = 0, length = 0, maxConstant = 3,
-		modifiedPlayersCol = playersCol;
+		modifiedPlayersCol = playersCol, extendPlayersCol = playersCol;
 
 		//CHECK FOR A WIN TO THE LEFT
 		for(var i = 0; i < maxConstant; i++) {
 			if(modifiedPlayersCol === maxLeftCol || leftCount === maxConstant) {
 				leftCount++;
-				startCol = modifiedPlayersCol;
 				break;
 			}else {
 				modifiedPlayersCol--;
 				leftCount++;
 			}
+			startCol = modifiedPlayersCol;
 		}
 
 		//CHECK FOR A WIN TO THE RIGHT
@@ -216,7 +216,7 @@ class PlayerBoard extends Component {
 		for(var j = 0; j < maxConstant; j++) {
 			if(modifiedPlayersCol === maxRightCol || rightCount === maxConstant) {
 				
-				if(rightCount !== 0) {
+				if(rightCount == 0) {
 					rightCount++;
 				}
 				break;
@@ -227,9 +227,9 @@ class PlayerBoard extends Component {
 		}
 
 		length = leftCount + rightCount;
-		if(playersCol > maxLeftCol) {
+		if(playersCol > maxLeftCol && playersCol != maxRightCol) {
 			length++;
-		}else if(playersCol < maxRightCol) {
+		}else if(playersCol < maxRightCol && playersCol != maxLeftCol) {
 			length++;
 		}
 
